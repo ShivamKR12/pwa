@@ -36,6 +36,13 @@ def make_offline_pwa():
         with open(index_path, "r", encoding="utf-8") as f:
             html = f.read()
             
+        # Ensure manifest and theme-color are properly linked in the HTML head
+        if 'rel="manifest"' not in html and "rel='manifest'" not in html:
+            html = html.replace('</head>', '  <link rel="manifest" href="./manifest.json">\n  <meta name="theme-color" content="#FFFFFF">\n</head>')
+        else:
+            html = html.replace('href="/manifest.json"', 'href="./manifest.json"')
+            html = html.replace('href="manifest.json"', 'href="./manifest.json"')
+
         sw_registration = """
 <script>
 if ('serviceWorker' in navigator) {
@@ -54,12 +61,13 @@ if ('serviceWorker' in navigator) {
             print("Service Worker registration injected into index.html")
             
     # 3. Create the Service Worker file (sw.js)
-    sw_code = f"""const CACHE_NAME = 'pygame-pwa-cache-v2';
+    sw_code = f"""const CACHE_NAME = 'pygame-pwa-cache-v3';
 const PRECACHE_URLS = [
     './',
     './index.html',
     './favicon.png',
     './manifest.json',
+    './favicons/favicon-192x192.png',
     './{archive_name}'
 ];
 
