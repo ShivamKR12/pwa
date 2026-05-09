@@ -4,16 +4,19 @@ import shutil
 import subprocess
 
 def make_offline_pwa():
+    docs_dir = "docs"
+    
+    # 0. Remove the old docs directory before building so Pygbag doesn't package it inside itself!
+    if os.path.exists(docs_dir):
+        shutil.rmtree(docs_dir)
+
     # 1. Build the game using pygbag (generates the build/web directory)
     print("Building pygbag project...")
     subprocess.run([sys.executable, "-m", "pygbag", "--build", "main.py"], check=True)
     
     web_dir = os.path.join("build", "web")
-    docs_dir = "docs"
     
     # Create or overwrite the docs directory for GitHub Pages
-    if os.path.exists(docs_dir):
-        shutil.rmtree(docs_dir)
     shutil.copytree(web_dir, docs_dir)
 
     index_path = os.path.join(docs_dir, "index.html")
