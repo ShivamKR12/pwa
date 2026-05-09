@@ -241,7 +241,7 @@ async def main():
                                         pygame.SCALED | pygame.RESIZABLE)
     
     pygame.display.set_caption("Pong")
-    pygame.display.set_icon(pygame.image.load("favicons/favicon.png"))
+    pygame.display.set_icon(pygame.image.load("favicon.png"))
 
     bg_color = pygame.Color("#2F373F")
     accent_color = (27, 35, 43)
