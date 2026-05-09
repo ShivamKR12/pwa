@@ -2,17 +2,11 @@
   "name": "pwa",
   "short_name": "pwa",
   "start_url": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#FFFFFF",
   "theme_color": "#FFFFFF",
-  "orientation": "landscape-primary",
+  "orientation": "landscape",
   "icons": [
-    {
-      "src": "./favicons/favicon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
     {
       "src": "./favicon.png",
       "sizes": "512x512",

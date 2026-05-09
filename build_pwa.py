@@ -68,13 +68,12 @@ def make_offline_pwa():
             f.write(html)
             
     # 3. Create the Service Worker file (sw.js)
-    sw_code = f"""const CACHE_NAME = 'pygame-pwa-cache-v4';
+    sw_code = f"""const CACHE_NAME = 'pygame-pwa-cache-v5';
 const PRECACHE_URLS = [
     './',
     './index.html',
     './favicon.png',
     './manifest.json',
-    './favicons/favicon-192x192.png',
     './{archive_name}'
 ];
 
