@@ -1,10 +1,9 @@
-const CACHE_NAME = 'pygame-pwa-cache-v4';
+const CACHE_NAME = 'pygame-pwa-cache-v5';
 const PRECACHE_URLS = [
     './',
     './index.html',
     './favicon.png',
     './manifest.json',
-    './favicons/favicon-192x192.png',
     './pwa.apk'
 ];
 

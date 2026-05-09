@@ -113,7 +113,7 @@ self.addEventListener('fetch', event => {{
     with open(sw_path, "w", encoding="utf-8") as f:
         f.write(sw_code)
     print(f"Service Worker generated at {sw_path}")
-    print("\\nReady for GitHub Pages! The 'docs' folder has been created.")
+    print("Ready for GitHub Pages! The 'docs' folder has been created.")
     print("To test locally, run:")
     print("python -m http.server --directory docs 8000")
 
