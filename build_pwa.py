@@ -37,31 +37,38 @@ def make_offline_pwa():
             html = f.read()
             
         # Ensure manifest and theme-color are properly linked in the HTML head
+        if 'name="theme-color"' not in html:
+            html = html.replace('</head>', '    <meta name="theme-color" content="#FFFFFF">\n</head>')
+            print("Theme color meta tag injected into index.html")
+
         if 'rel="manifest"' not in html and "rel='manifest'" not in html:
-            html = html.replace('</head>', '  <link rel="manifest" href="./manifest.json">\n  <meta name="theme-color" content="#FFFFFF">\n</head>')
+            html = html.replace('</head>', '    <link rel="manifest" href="manifest.json" />\n</head>')
+            print("Manifest link injected into index.html")
         else:
-            html = html.replace('href="/manifest.json"', 'href="./manifest.json"')
-            html = html.replace('href="manifest.json"', 'href="./manifest.json"')
+            html = html.replace('href="./manifest.json"', 'href="manifest.json"')
+            html = html.replace('href="/manifest.json"', 'href="manifest.json"')
+            print("Manifest link updated in index.html")
 
         sw_registration = """
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('Service Worker registered!'))
-      .catch(err => console.log('Service Worker registration failed: ', err));
-  });
-}
-</script>
-"""
-        if "navigator.serviceWorker.register" not in html:
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registered!'))
+                .catch(err => console.log('Service Worker registration failed: ', err));
+        });
+    }
+    </script>"""
+        if "navigator.serviceWorker.register('./sw.js')" not in html:
             html = html.replace("</body>", sw_registration + "\n</body>")
-            with open(index_path, "w", encoding="utf-8") as f:
-                f.write(html)
             print("Service Worker registration injected into index.html")
             
+        # Unconditionally write the updated HTML back to the file
+        with open(index_path, "w", encoding="utf-8") as f:
+            f.write(html)
+            
     # 3. Create the Service Worker file (sw.js)
-    sw_code = f"""const CACHE_NAME = 'pygame-pwa-cache-v3';
+    sw_code = f"""const CACHE_NAME = 'pygame-pwa-cache-v4';
 const PRECACHE_URLS = [
     './',
     './index.html',

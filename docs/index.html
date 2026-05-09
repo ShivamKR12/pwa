@@ -286,8 +286,8 @@ function show_infobox() {
 
     <script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>
 
+    <meta name="theme-color" content="#FFFFFF">
     <link rel="manifest" href="manifest.json" />
-    
 </head>
 
 <body>
@@ -436,5 +436,15 @@ frameborder="1"
 
     </script>
 
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registered!'))
+                .catch(err => console.log('Service Worker registration failed: ', err));
+        });
+    }
+    </script>
 </body>
 </html>
