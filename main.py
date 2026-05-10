@@ -224,7 +224,9 @@ async def main():
     # and the main game loop. The main loop is now very clean
     # because most logic has been moved into classes.
 
-    pygame.mixer.pre_init(44100, -16, 2, 512)
+    # Increase the audio buffer size to 1024 (from 512).
+    # A larger buffer gives mobile browsers more time to process audio without crackling.
+    pygame.mixer.pre_init(44100, -16, 2, 1024)
     pygame.init()
     clock = pygame.time.Clock()
 
@@ -303,8 +305,13 @@ async def main():
         game_manager.run_game()
 
         pygame.display.flip()
+
+        # Yield control to the browser. This natively syncs with the screen's refresh rate.
         await asyncio.sleep(0)
-        clock.tick(120)
+
+        # Do not hard-cap the framerate! It fights the browser and causes audio buffer starvation.
+        # To keep game speed consistent across monitors, you'll eventually want to use delta time.
+        clock.tick()
 
 
 asyncio.run(main())
