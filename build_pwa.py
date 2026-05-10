@@ -6,10 +6,13 @@ import time
 
 def make_offline_pwa():
     docs_dir = "docs"
+    build_dir = "build"
     
-    # 0. Remove the old docs directory before building so Pygbag doesn't package it inside itself!
+    # 0. Remove the old docs and build directory before building so Pygbag starts fresh!
     if os.path.exists(docs_dir):
         shutil.rmtree(docs_dir)
+    if os.path.exists(build_dir):
+        shutil.rmtree(build_dir)
 
     # 1. Build the game using pygbag (generates the build/web directory)
     print("Building pygbag project...")

@@ -1,11 +1,10 @@
-const CACHE_NAME = 'pygame-pwa-cache-1778400361';
+const CACHE_NAME = 'pygame-pwa-cache-1778401138';
 const PRECACHE_URLS = [
     './',
     './favicon.png',
     './index.html',
     './manifest.json',
-    './pwa.apk',
-    './pwa.tar.gz'
+    './pwa.apk'
 ];
 
 self.addEventListener('install', event => {
