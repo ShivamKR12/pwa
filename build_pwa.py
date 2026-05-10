@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import subprocess
+import time
 
 def make_offline_pwa():
     docs_dir = "docs"
@@ -27,12 +28,14 @@ def make_offline_pwa():
         if os.path.exists(file):
             shutil.copy(file, os.path.join(docs_dir, file))
             
-    # Find the game archive to precache
-    archive_name = ""
-    for file in os.listdir(docs_dir):
-        if file.endswith(".tar.gz") or file.endswith(".apk"):
-            archive_name = file
-            break
+    # 1 & 4. Dynamically generate precache list based on actual files in the docs folder
+    precache_list = ["'./'"]
+    for root, _, files in os.walk(docs_dir):
+        for file in files:
+            rel_path = os.path.relpath(os.path.join(root, file), docs_dir).replace('\\', '/')
+            if file != "sw.js": # Don't cache the service worker itself
+                precache_list.append(f"'./{rel_path}'")
+    precache_urls_str = ",\n    ".join(precache_list)
 
     # 2. Inject Service Worker registration into index.html
     if os.path.exists(index_path):
@@ -71,13 +74,10 @@ def make_offline_pwa():
             f.write(html)
             
     # 3. Create the Service Worker file (sw.js)
-    sw_code = f"""const CACHE_NAME = 'pygame-pwa-cache-v5';
+    timestamp = int(time.time())
+    sw_code = f"""const CACHE_NAME = 'pygame-pwa-cache-{timestamp}';
 const PRECACHE_URLS = [
-    './',
-    './index.html',
-    './favicon.png',
-    './manifest.json',
-    './{archive_name}'
+    {precache_urls_str}
 ];
 
 self.addEventListener('install', event => {{
@@ -88,16 +88,32 @@ self.addEventListener('install', event => {{
 }});
 
 self.addEventListener('activate', event => {{
-    event.waitUntil(self.clients.claim());
+    // 2. Cache Cleanup: Delete old versions of the cache
+    event.waitUntil(
+        caches.keys().then(cacheNames => {{
+            return Promise.all(
+                cacheNames.map(cacheName => {{
+                    if (cacheName !== CACHE_NAME && cacheName.startsWith('pygame-pwa-cache-')) {{
+                        return caches.delete(cacheName);
+                    }}
+                }})
+            );
+        }}).then(() => self.clients.claim())
+    );
 }});
 
 self.addEventListener('fetch', event => {{
     if (event.request.method !== 'GET') return;
 
     event.respondWith(
-        fetch(event.request)
-            .then(response => {{
-                // Cache successful GET requests for offline use
+        // 3. Cache-First Strategy
+        caches.match(event.request, {{ ignoreSearch: true }}).then(cachedResponse => {{
+            if (cachedResponse) {{
+                return cachedResponse; // Instant load from cache!
+            }}
+            
+            // Fallback to network if not in cache
+            return fetch(event.request).then(response => {{
                 if (response && (response.status === 200 || response.type === 'opaque')) {{
                     const responseClone = response.clone();
                     caches.open(CACHE_NAME).then(cache => {{
@@ -106,10 +122,7 @@ self.addEventListener('fetch', event => {{
                 }}
                 return response;
             }})
-            .catch(() => {{
-                // Fallback to cache if network fails (offline mode)
-                return caches.match(event.request, {{ ignoreSearch: true }});
-            }})
+        }})
     );
 }});
 """
