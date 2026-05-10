@@ -54,6 +54,19 @@ Service Workers are incredibly powerful, so browsers enforce a strict security r
 * You cannot install a PWA over a standard HTTP connection (except for `localhost` when testing).
 * Platforms like **GitHub Pages** are the gold standard for indie web games because they automatically provide free, secure HTTPS hosting out of the box!
 
+## 6. Web Audio Optimizations & Mobile Quirks
+Browser audio (especially on Android Chrome) can be incredibly finicky when it comes to HTML5 canvas and WebAssembly games. If you experience electrical crackling or audio breaking when playing the PWA on a mobile device, you should apply these partial patches to your `main.py`:
+
+* **Increase the Audio Buffer Size:** Standard Pygame sets the audio buffer to 512. This is great for desktop but doesn't give mobile browsers enough time to process audio without crackling. Increase it to 1024 before initializing Pygame:
+  ```python
+  pygame.mixer.pre_init(44100, -16, 2, 1024)
+  ```
+* **Increase Mixer Channels:** Prevent audio "popping" by ensuring sounds don't interrupt each other when played at the exact same millisecond:
+  ```python
+  pygame.mixer.set_num_channels(64)
+  ```
+* **Remove the Hard-Capped Framerate:** Using a hard limit like `clock.tick(60)` creates tiny, artificial sleep delays that constantly fight the browser's natural rendering cycle (which relies on `await asyncio.sleep(0)`). This causes micro-stutters that break the audio thread on mobile devices. Instead, remove the frame cap (`clock.tick()`) and use **Delta Time** to calculate movement so your game runs consistently across all refresh rates!
+
 ---
 
-If you apply these 5 steps to any Pygame project, you will instantly have a web game that looks and acts like a true native application on iOS, Android, Windows, and Mac!
+If you apply these steps to any Pygame project, you will instantly have a web game that looks and acts like a true native application on iOS, Android, Windows, Linux and Mac!
